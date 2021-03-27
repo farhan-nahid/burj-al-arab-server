@@ -1,8 +1,17 @@
 const express = require('express')
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const admin = require('firebase-admin');
 
 const port = 5000
+
+
+var serviceAccount = require("./burj-al-arob-0-firebase-adminsdk-cvzbc-ce9ee3474f.json");
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
+
 
 const app =express();
 app.use(cors())
@@ -19,17 +28,39 @@ client.connect(err => {
       const newBooking = req.body;
       bookings.insertOne(newBooking)
       .then(result =>{
-          res.send(result.insertedCount > 0)
+          res.send(result.insertedCount > 0);
       })
       console.log(newBooking);
   })
  
   app.get('/bookings', (req, res) =>{
-    console.log(req.query.email);
-    bookings.find({email: req.query.email})
-    .toArray((err, documents) =>{
-      res.send(documents)
-    })
+    const bearer = req.headers.authorization;
+    if(bearer && bearer.startsWith('Bearer ')){
+        const idToken = bearer.split(' ')[1];
+        console.log(idToken);
+          admin
+            .auth()
+            .verifyIdToken(idToken)
+            .then((decodedToken) => {
+              const tokenEmail = decodedToken.email;
+              if(tokenEmail === req.query.email){
+                bookings.find({email: req.query.email})
+                  .toArray((err, documents) =>{
+                     res.send(documents)
+               })
+              }
+              // ...
+            })
+            .catch((error) => {
+              // Handle error
+            });
+    };
+
+    // idToken comes from the client app
+
+
+
+ 
   })
 
 });
