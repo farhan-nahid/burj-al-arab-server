@@ -2,11 +2,11 @@ const express = require('express')
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const admin = require('firebase-admin');
+require('dotenv').config()
 
 const port = 5000
 
-
-var serviceAccount = require("./burj-al-arob-0-firebase-adminsdk-cvzbc-ce9ee3474f.json");
+const serviceAccount = require("./config/burj-al-arob-0-firebase-adminsdk-cvzbc-ce9ee3474f.json");
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
@@ -19,7 +19,7 @@ app.use(bodyParser.json())
 
 
 const MongoClient = require('mongodb').MongoClient;
-const uri = "mongodb+srv://burjalarab:arabian33@cluster0.2xoju.mongodb.net/burjAlArab?retryWrites=true&w=majority";
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.2xoju.mongodb.net/burjAlArab?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 client.connect(err => {
   const bookings = client.db("burjAlArab").collection("bookings");
@@ -46,23 +46,18 @@ client.connect(err => {
               if(tokenEmail === req.query.email){
                 bookings.find({email: req.query.email})
                   .toArray((err, documents) =>{
-                     res.send(documents)
+                     res.status(200).send(documents)
                })
               }
-              // ...
             })
             .catch((error) => {
-              // Handle error
+              res.status(401).send('Un-Authorized Access')
             });
-    };
-
+    }else{
+      res.status(401).send('Un-Authorized Access')
+    }
     // idToken comes from the client app
-
-
-
- 
   })
-
 });
 
 
