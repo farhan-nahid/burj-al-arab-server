@@ -23,7 +23,14 @@ client.connect(err => {
       })
       console.log(newBooking);
   })
-  // perform actions on the collection object
+ 
+  app.get('/bookings', (req, res) =>{
+    console.log(req.query.email);
+    bookings.find({email: req.query.email})
+    .toArray((err, documents) =>{
+      res.send(documents)
+    })
+  })
 
 });
 
