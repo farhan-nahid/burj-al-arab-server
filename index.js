@@ -6,7 +6,7 @@ require('dotenv').config()
 
 const port = 5000
 
-const serviceAccount = require("./config/burj-al-arob-0-firebase-adminsdk-cvzbc-ce9ee3474f.json");
+const serviceAccount = require("./configss/burj-al-arob-0-firebase-adminsdk-cvzbc-ce9ee3474f.json");
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
